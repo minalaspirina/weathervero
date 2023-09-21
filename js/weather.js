@@ -1,29 +1,45 @@
-var map = L.map('map').setView([51.505, -0.09], 13);
+function createMap(lat, lng) {
+	let latinput = document.querySelector("#lat");
+	let lnginput = document.querySelector("#lng");
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+	var map = L.map("map").setView([lat, lng], 13);
 
-L.marker([51.5, -0.09]).addTo(map)
-    .bindPopup('You are here')
-    .openPopup();
+	L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+		maxZoom: 19,
+		attribution:
+			'&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	}).addTo(map);
 
-document.querySelector("form").addEventListener("submit", function (event) {
-    event.preventDefault()
-    let latitudine = document.querySelector("#lat").value
-    let longitudine = document.querySelector("#lng").value
+	var popup = L.popup();
+	var marker = L.marker();
 
-    console.log(latitudine, longitudine)
+	function onMapClick(e) {
+		map.removeLayer(marker);
+		marker = L.marker(e.latlng).addTo(map);
 
-    let url = `https://api.open-meteo.com/v1/forecast?latitude=${latitudine}&longitude=${longitudine}&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,windspeed_10m`
+		popup
+			.setLatLng(e.latlng)
+			.setContent("You clicked the map at " + e.latlng.toString())
+			.openOn(map);
 
+		let lat = e.latlng.lat.toString();
+		let lng = e.latlng.lng.toString();
 
-    console.log(url)
+		latinput.value = lat;
+		lnginput.value = lng;
+	}
 
-    fetch(url).then(function (resp) {
-        return resp.json()
-    }).then(function (data) {
-        console.log(data.hourly.time)
-        console.log(data.hourly.temperature_2m)
-    })
-})
+	map.on("click", onMapClick);
+}
+
+navigator.geolocation.getCurrentPosition(
+	function (event) {
+		console.log("l'utente ha accettato")
+		createMap(event.coords.latitude, event.coords.longitude)
+	},
+
+	function (event) {
+		console.log("l'utente non ha accettato")
+		createMap(51, -0.09)
+	}
+)
