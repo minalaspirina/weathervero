@@ -19,7 +19,7 @@ function createMap(lat, lng) {
 
 		popup
 			.setLatLng(e.latlng)
-			.setContent("You clicked the map at " + e.latlng.toString())
+			.setContent("Hai cliccato in questo punto:" + e.latlng.toString())
 			.openOn(map);
 
 		let lat = e.latlng.lat.toString();
